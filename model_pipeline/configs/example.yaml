@@ -1,0 +1,33 @@
+# Which models x which corruption sets. Snapshotted next to each results file for repro.
+run_id: shape-texture-v1
+device: cuda
+
+# Input seam (corruption owner's output): manifest is authoritative; paths resolve against data_root.
+data_root: /data/corrupted
+manifest: /data/corrupted/manifest.parquet   # columns: image_id, path, label, corruption, severity, draw
+
+# Output seam (gitignored).
+results_dir: model_pipeline/results
+results_file: results.parquet
+
+models:
+  - resnet50_in1k
+  - resnet50_sin
+  - vit_b16_in1k
+  - convnext_b_in1k
+  - clip_vit_b16
+  - resnet50_augmix
+
+corruptions:                 # owned by the corruption teammate; names must match the manifest
+  - gaussian_noise
+  - shot_noise
+  - impulse_noise
+severities: [1, 2, 3, 4, 5]
+seeds: [0, 1, 2]             # each maps to a `draw` index in the manifest (replicate-draw selector)
+
+eval:
+  batch_size: 256
+  num_workers: 8
+  metrics: [top1, top5, nll, ece]
+  dtype: fp32
+  ece_bins: 15
