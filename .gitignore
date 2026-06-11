@@ -1,0 +1,16 @@
+# Weights, datasets, and results never go in git.
+# Checkpoints download by name (timm / OpenCLIP / HF / RobustBench).
+results/
+model_pipeline/results/
+data/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
