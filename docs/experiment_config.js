@@ -723,28 +723,28 @@ const EXPERIMENT_CONFIG = {
   ],
   "practice_trials": [
     {
-      "image_id": "n03425413_25410",
+      "image_id": "n02979186_20220",
       "corruption": "clean",
       "severity": 0,
-      "label": 571,
-      "class_name": "gas pump",
-      "web_path": "images/clean/n03425413_25410.jpg"
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/clean/n02979186_20220.jpg"
     },
     {
-      "image_id": "n03425413_26601",
+      "image_id": "n01440764_14530",
       "corruption": "clean",
       "severity": 0,
-      "label": 571,
-      "class_name": "gas pump",
-      "web_path": "images/clean/n03425413_26601.jpg"
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/clean/n01440764_14530.jpg"
     },
     {
-      "image_id": "n03888257_19531",
+      "image_id": "n03394916_47110",
       "corruption": "clean",
       "severity": 0,
-      "label": 701,
-      "class_name": "parachute",
-      "web_path": "images/clean/n03888257_19531.jpg"
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/clean/n03394916_47110.jpg"
     }
   ],
   "class_names": [

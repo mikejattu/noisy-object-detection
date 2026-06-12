@@ -80,10 +80,17 @@ def main() -> None:
         if candidates:
             main_ids.append(sorted(candidates)[0])
 
-    # 3 practice images from the remainder
-    remaining = [iid for iid in clean_df["image_id"].tolist() if iid not in main_ids]
-    random.shuffle(remaining)
-    practice_ids = remaining[:3]
+    # 3 practice images from the remainder — pick from 3 different classes
+    remaining_df = clean_df[~clean_df["image_id"].isin(main_ids)]
+    practice_ids = []
+    used_wnids = set()
+    candidates = remaining_df.sample(frac=1, random_state=args.seed).itertuples()
+    for row in candidates:
+        if row.wnid not in used_wnids:
+            practice_ids.append(row.image_id)
+            used_wnids.add(row.wnid)
+        if len(practice_ids) == 3:
+            break
 
     corruptions = sorted(c for c in manifest["corruption"].unique() if c != "clean")
     main_trials, practice_trials = [], []

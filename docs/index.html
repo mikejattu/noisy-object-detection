@@ -5,22 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Image Recognition under Noise</title>
 
-  <!-- jsPsych 6.3.1 -->
   <script src="https://cdn.jsdelivr.net/npm/jspsych@6.3.1/jspsych.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspsych@6.3.1/plugins/jspsych-html-keyboard-response.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspsych@6.3.1/plugins/jspsych-html-button-response.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspsych@6.3.1/plugins/jspsych-fullscreen.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspsych@6.3.1/css/jspsych.css">
-
-  <!-- Auto-generated trial manifest -->
   <script src="experiment_config.js"></script>
 
   <style>
-    body { background: #0f172a; }
+    body { background: #0f172a; margin: 0; font-family: system-ui, sans-serif; }
 
+    /* ── Pre-experiment participant-ID screen ── */
+    #pid-screen {
+      position: fixed; inset: 0; background: #0f172a;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    #pid-card {
+      background: #1e293b; border: 1px solid #334155;
+      border-radius: 16px; padding: 3rem 3.5rem;
+      max-width: 480px; width: 90%; text-align: center;
+    }
+    #pid-card h2 { color: #f1f5f9; font-size: 1.5rem; margin: 0 0 0.5rem; }
+    #pid-card p  { color: #94a3b8; font-size: 0.95rem; margin: 0 0 1.5rem; line-height: 1.6; }
+    #pid-input {
+      width: 100%; box-sizing: border-box;
+      padding: 0.75rem 1rem; font-size: 1.05rem;
+      background: #0f172a; color: #e2e8f0;
+      border: 2px solid #3b4f6e; border-radius: 8px;
+      outline: none; transition: border-color 0.15s;
+    }
+    #pid-input:focus { border-color: #3b82f6; }
+    #pid-btn {
+      margin-top: 1.2rem; width: 100%;
+      padding: 0.8rem; font-size: 1.05rem; font-weight: 600;
+      background: #2563eb; color: #fff; border: none;
+      border-radius: 8px; cursor: pointer; transition: background 0.15s;
+    }
+    #pid-btn:hover { background: #1d4ed8; }
+    #pid-error { color: #f87171; font-size: 0.875rem; margin-top: 0.75rem; min-height: 1.2rem; }
+
+    /* ── jsPsych overrides ── */
     .jspsych-display-element { background: #0f172a; }
+    .jspsych-content { max-width: 920px !important; color: #e2e8f0 !important; }
 
-    /* Response button grid: 2 rows × 5 columns */
+    /* Response button grid — 2 rows × 5 columns */
     #jspsych-html-button-response-btngroup {
       display: grid !important;
       grid-template-columns: repeat(5, 1fr) !important;
@@ -29,7 +58,6 @@
       margin: 10px auto 0 !important;
       padding: 0 !important;
     }
-
     .jspsych-btn {
       font-size: 14px !important;
       font-family: system-ui, sans-serif !important;
@@ -40,48 +68,58 @@
       border-radius: 10px !important;
       cursor: pointer !important;
       transition: background 0.12s, border-color 0.12s !important;
-      white-space: normal !important;
-      line-height: 1.3 !important;
-      text-align: center !important;
+      white-space: normal !important; line-height: 1.3 !important;
     }
+    .jspsych-btn:hover { background: #2a5298 !important; border-color: #60a5fa !important; }
 
-    .jspsych-btn:hover {
-      background: #2a5298 !important;
-      border-color: #60a5fa !important;
-    }
+    #jspsych-progressbar-container { background: #1e293b !important; }
+    #jspsych-progressbar-inner     { background: #3b82f6 !important; }
 
-    .jspsych-content {
-      max-width: 920px !important;
-      color: #e2e8f0 !important;
-    }
-
-    /* Progress bar */
-    #jspsych-progressbar-container {
-      background: #1e293b !important;
-    }
-    #jspsych-progressbar-inner {
-      background: #3b82f6 !important;
-    }
-
-    /* Shared text helpers */
+    .exp-wrap  { max-width: 680px; margin: 0 auto; text-align: center; padding-top: 8vh; }
     .exp-title { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #f1f5f9; }
     .exp-sub   { font-size: 1.05rem; line-height: 1.8; color: #94a3b8; }
     .exp-hint  { font-size: 0.88rem; color: #4b5563; margin-top: 2rem; }
     .exp-hl    { color: #60a5fa; font-weight: 600; }
-    .exp-wrap  { max-width: 680px; margin: 0 auto; text-align: center; padding-top: 8vh; }
   </style>
 </head>
 <body>
+
+<!-- ── Participant-ID gate (shown before jsPsych starts) ────────────────── -->
+<div id="pid-screen">
+  <div id="pid-card">
+    <h2>Image Recognition Study</h2>
+    <p>
+      Enter the participant ID you were given by the researcher.<br>
+      If you were not given one, type <strong style="color:#e2e8f0;">anonymous</strong>.
+    </p>
+    <input id="pid-input" type="text" placeholder="e.g., P001" maxlength="40"
+           onkeydown="if(event.key==='Enter') startExperiment()">
+    <div id="pid-error"></div>
+    <button id="pid-btn" onclick="startExperiment()">Begin Experiment</button>
+  </div>
+</div>
+
 <script>
 'use strict';
 
-/* ── Config ──────────────────────────────────────────────────────────────── */
-const CLASS_NAMES     = EXPERIMENT_CONFIG.class_names;   // 10 strings
-const MAIN_TRIALS     = EXPERIMENT_CONFIG.trials;        // 90 rows
-const PRACTICE_TRIALS = EXPERIMENT_CONFIG.practice_trials; // 3 rows
-const DISP            = EXPERIMENT_CONFIG.corruption_display;
+/* ═══════════════════════════════════════════════════════════════════════════
+   DATA COLLECTION — Google Sheets via Apps Script
+   ───────────────────────────────────────────────────────────────────────────
+   Leave SHEETS_ENDPOINT empty to disable (CSV-only mode).
+   To enable central collection:
+     1. Open your Google Sheet → Extensions → Apps Script
+     2. Paste the doPost() code from SETUP_SHEETS.md into Code.gs
+     3. Deploy → New deployment → Web App → Execute as: Me → Who has access: Anyone
+     4. Copy the Web App URL and paste it below.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const SHEETS_ENDPOINT = '';   // ← paste your Apps Script Web App URL here
 
-/* ── Utilities ───────────────────────────────────────────────────────────── */
+/* ── Experiment config ─────────────────────────────────────────────────── */
+const CLASS_NAMES     = EXPERIMENT_CONFIG.class_names;
+const MAIN_TRIALS     = EXPERIMENT_CONFIG.trials;
+const PRACTICE_TRIALS = EXPERIMENT_CONFIG.practice_trials;
+
+/* ── Utilities ─────────────────────────────────────────────────────────── */
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -99,215 +137,261 @@ function downloadCSV(csv, fname) {
   URL.revokeObjectURL(url);
 }
 
-/* ── State ───────────────────────────────────────────────────────────────── */
-let correctMain = 0;
-let lastCorrect = false; // used to pass info from response → feedback node
+async function submitToSheets(participantId, rows) {
+  if (!SHEETS_ENDPOINT) return;
+  try {
+    /* mode: 'no-cors' is required for Apps Script — response body unreadable
+       but the POST still arrives and the sheet gets written.               */
+    await fetch(SHEETS_ENDPOINT, {
+      method:  'POST',
+      mode:    'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ participant_id: participantId, rows }),
+    });
+    console.log('Data submitted to Google Sheets.');
+  } catch (err) {
+    console.warn('Sheets submission failed (CSV is still saved locally):', err);
+  }
+}
 
-/* ── Timeline ────────────────────────────────────────────────────────────── */
-const timeline = [];
+/* ── Participant-ID gate ───────────────────────────────────────────────── */
+let participantId = '';
 
-/* Welcome */
-timeline.push({
-  type: 'html-keyboard-response',
-  stimulus: `
-    <div class="exp-wrap">
-      <h1 class="exp-title">Image Recognition under Noise</h1>
-      <p class="exp-sub">
-        You will see images that may be
-        <span class="exp-hl">blurry, noisy, or distorted</span>.
-        Your task: identify the <span class="exp-hl">object category</span>
-        shown in each image.
-      </p>
-      <p class="exp-sub" style="margin-top:1.2rem;">
-        The 10 possible categories are:
-      </p>
-      <p class="exp-sub" style="margin-top:0.4rem;">
-        ${CLASS_NAMES.map(n => `<em>${n}</em>`).join(' &nbsp;·&nbsp; ')}
-      </p>
-      <p class="exp-sub" style="margin-top:1.5rem;">
-        There are <span class="exp-hl">${MAIN_TRIALS.length} main trials</span>
-        (plus 3 practice trials with feedback).
-      </p>
-      <p class="exp-hint">Press any key to continue</p>
-    </div>`,
-  choices: jsPsych.ALL_KEYS,
-});
+function startExperiment() {
+  const val = document.getElementById('pid-input').value.trim();
+  if (!val) {
+    document.getElementById('pid-error').textContent = 'Please enter a participant ID.';
+    return;
+  }
+  participantId = val;
+  document.getElementById('pid-screen').style.display = 'none';
+  runJsPsych();
+}
 
-/* Fullscreen */
-timeline.push({
-  type: 'fullscreen',
-  fullscreen_mode: true,
-  message: `<p style="color:#94a3b8; font-size:1.1rem;">
-    Click the button to enter full screen, then the experiment will begin.
-  </p>`,
-});
+/* ── Main experiment ───────────────────────────────────────────────────── */
+function runJsPsych() {
+  /* Tag every trial with the participant ID */
+  jsPsych.data.addProperties({ participant_id: participantId });
 
-/* Instructions */
-timeline.push({
-  type: 'html-keyboard-response',
-  stimulus: `
-    <div class="exp-wrap" style="text-align:left; padding-left:2rem; padding-right:2rem;">
-      <h2 style="font-size:1.6rem; font-weight:600; margin-bottom:1.5rem; text-align:center;">
-        How it works
-      </h2>
-      <p class="exp-sub">① A <strong style="color:#f1f5f9;">+</strong> fixation cross appears. Focus on the centre of the screen.</p>
-      <p class="exp-sub">② An image appears briefly. Look at it carefully.</p>
-      <p class="exp-sub">③ The image disappears. Click the button that best matches what you saw.</p>
-      <p class="exp-sub">④ Try to be both <strong style="color:#f1f5f9;">accurate</strong> and <strong style="color:#f1f5f9;">quick</strong>.</p>
-      <p class="exp-hint" style="text-align:center; margin-top:2.5rem;">Press any key to begin the practice trials</p>
-    </div>`,
-  choices: jsPsych.ALL_KEYS,
-});
+  let correctMain = 0;
+  let lastCorrect = false;
+  const timeline = [];
 
-/* ── Trial builder ───────────────────────────────────────────────────────── */
-function makeTrial(trial, practice) {
-  const nodes = [];
-
-  // Fixation (500 ms)
-  nodes.push({
+  /* Welcome */
+  timeline.push({
     type: 'html-keyboard-response',
-    stimulus: '<div style="font-size:72px; color:#e2e8f0; line-height:1;">+</div>',
-    choices: jsPsych.NO_KEYS,
-    trial_duration: 500,
+    stimulus: `
+      <div class="exp-wrap">
+        <h1 class="exp-title">Image Recognition under Noise</h1>
+        <p class="exp-sub">
+          You will see images that may be
+          <span class="exp-hl">blurry, noisy, or distorted</span>.
+          Your task: identify the <span class="exp-hl">object category</span>
+          shown in each image.
+        </p>
+        <p class="exp-sub" style="margin-top:1.2rem;">The 10 possible categories are:</p>
+        <p class="exp-sub" style="margin-top:0.4rem;">
+          ${CLASS_NAMES.map(n => `<em>${n}</em>`).join(' &nbsp;·&nbsp; ')}
+        </p>
+        <p class="exp-sub" style="margin-top:1.5rem;">
+          There are <span class="exp-hl">${MAIN_TRIALS.length} main trials</span>
+          (plus 3 practice trials with feedback).
+        </p>
+        <p class="exp-hint">Press any key to continue</p>
+      </div>`,
+    choices: jsPsych.ALL_KEYS,
   });
 
-  // Stimulus (1000 ms, no response)
-  nodes.push({
+  /* Fullscreen */
+  timeline.push({
+    type: 'fullscreen',
+    fullscreen_mode: true,
+    message: `<p style="color:#94a3b8; font-size:1.1rem;">
+      Click the button to enter full screen, then the experiment will begin.
+    </p>`,
+  });
+
+  /* Instructions */
+  timeline.push({
     type: 'html-keyboard-response',
-    stimulus: `<img src="${trial.web_path}"
-                    style="max-height:380px; max-width:560px;
-                           border-radius:6px; display:block; margin:auto;">`,
-    choices: jsPsych.NO_KEYS,
-    trial_duration: 1000,
+    stimulus: `
+      <div class="exp-wrap" style="text-align:left; padding-left:2rem; padding-right:2rem;">
+        <h2 style="font-size:1.6rem; font-weight:600; margin-bottom:1.5rem; text-align:center;">
+          How it works
+        </h2>
+        <p class="exp-sub">① A <strong style="color:#f1f5f9;">+</strong> fixation cross appears. Focus on the centre of the screen.</p>
+        <p class="exp-sub">② An image appears briefly. Look at it carefully.</p>
+        <p class="exp-sub">③ The image disappears. Click the button that best matches what you saw.</p>
+        <p class="exp-sub">④ Try to be both <strong style="color:#f1f5f9;">accurate</strong> and <strong style="color:#f1f5f9;">quick</strong>.</p>
+        <p class="exp-hint" style="text-align:center; margin-top:2.5rem;">Press any key to begin practice</p>
+      </div>`,
+    choices: jsPsych.ALL_KEYS,
   });
 
-  // Blank ISI (100 ms)
-  nodes.push({
-    type: 'html-keyboard-response',
-    stimulus: '',
-    choices: jsPsych.NO_KEYS,
-    trial_duration: 100,
-  });
+  /* ── Trial builder ─────────────────────────────────────────────────── */
+  function makeTrial(trial, practice) {
+    const nodes = [];
 
-  // Response — 10-AFC button grid
-  nodes.push({
-    type: 'html-button-response',
-    stimulus: '<p style="color:#94a3b8; font-size:0.95rem; margin-bottom:0.5rem;">What did you see?</p>',
-    choices: CLASS_NAMES,
-    button_html: '<button class="jspsych-btn">%choice%</button>',
-    data: {
-      phase:          'response',
-      image_id:       trial.image_id,
-      corruption:     trial.corruption,
-      severity:       trial.severity,
-      correct_class:  trial.class_name,
-      correct_label:  trial.correct_label,
-    },
-    on_finish(data) {
-      data.chosen_class = CLASS_NAMES[data.button_pressed];
-      data.is_correct   = (data.chosen_class === trial.class_name) ? 1 : 0;
-      lastCorrect = !!data.is_correct;
-      if (!practice) correctMain += data.is_correct;
-    },
-  });
-
-  // Feedback (practice only, 900 ms)
-  if (practice) {
+    // Fixation (500 ms)
     nodes.push({
       type: 'html-keyboard-response',
-      stimulus() {
-        if (lastCorrect) {
-          return `<p style="font-size:1.5rem; color:#22c55e;">✓ Correct!</p>`;
-        }
-        return `<p style="font-size:1.5rem; color:#ef4444;">
-                  ✗ Incorrect — it was <em>${trial.class_name}</em>
-                </p>`;
-      },
+      stimulus: '<div style="font-size:72px; color:#e2e8f0; line-height:1;">+</div>',
       choices: jsPsych.NO_KEYS,
-      trial_duration: 900,
+      trial_duration: 500,
     });
+
+    // Image (1000 ms, no response required)
+    nodes.push({
+      type: 'html-keyboard-response',
+      stimulus: `<img src="${trial.web_path}"
+                      style="max-height:380px; max-width:560px;
+                             border-radius:6px; display:block; margin:auto;">`,
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 1000,
+    });
+
+    // Blank ISI (100 ms)
+    nodes.push({
+      type: 'html-keyboard-response',
+      stimulus: '',
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 100,
+    });
+
+    // 10-AFC response
+    nodes.push({
+      type: 'html-button-response',
+      stimulus: '<p style="color:#94a3b8; font-size:0.95rem; margin-bottom:0.5rem;">What did you see?</p>',
+      choices: CLASS_NAMES,
+      button_html: '<button class="jspsych-btn">%choice%</button>',
+      data: {
+        phase:         'response',
+        image_id:      trial.image_id,
+        corruption:    trial.corruption,
+        severity:      trial.severity,
+        correct_class: trial.class_name,
+        correct_label: trial.label,
+      },
+      on_finish(data) {
+        data.chosen_class = CLASS_NAMES[data.button_pressed];
+        data.is_correct   = (data.chosen_class === trial.class_name) ? 1 : 0;
+        lastCorrect = !!data.is_correct;
+        if (!practice) correctMain += data.is_correct;
+      },
+    });
+
+    // Feedback (practice only, 900 ms)
+    if (practice) {
+      nodes.push({
+        type: 'html-keyboard-response',
+        stimulus() {
+          return lastCorrect
+            ? `<p style="font-size:1.5rem; color:#22c55e;">✓ Correct!</p>`
+            : `<p style="font-size:1.5rem; color:#ef4444;">
+                 ✗ Incorrect — it was <em>${trial.class_name}</em>
+               </p>`;
+        },
+        choices: jsPsych.NO_KEYS,
+        trial_duration: 900,
+      });
+    }
+
+    // ITI (400 ms)
+    nodes.push({
+      type: 'html-keyboard-response',
+      stimulus: '', choices: jsPsych.NO_KEYS, trial_duration: 400,
+    });
+
+    return nodes;
   }
 
-  // ITI (400 ms)
-  nodes.push({
+  /* Practice block */
+  timeline.push({
     type: 'html-keyboard-response',
-    stimulus: '',
+    stimulus: `<div style="color:#94a3b8; font-size:1.25rem; padding-top:35vh; text-align:center;">
+      Practice — 3 trials with correctness feedback
+    </div>`,
     choices: jsPsych.NO_KEYS,
-    trial_duration: 400,
+    trial_duration: 1800,
+  });
+  for (const t of PRACTICE_TRIALS) {
+    for (const node of makeTrial(t, true)) timeline.push(node);
+  }
+
+  /* Transition to main */
+  timeline.push({
+    type: 'html-keyboard-response',
+    stimulus: `
+      <div class="exp-wrap">
+        <h2 style="font-size:1.6rem; font-weight:600;">Main experiment</h2>
+        <p class="exp-sub" style="margin-top:1rem;">
+          The next <span class="exp-hl">${MAIN_TRIALS.length} trials</span>
+          have no feedback. Try your best even when the image is hard to see.
+        </p>
+        <p class="exp-hint">Press any key to start</p>
+      </div>`,
+    choices: jsPsych.ALL_KEYS,
   });
 
-  return nodes;
+  /* Main block (shuffled) */
+  const shuffled = shuffle(MAIN_TRIALS);
+  for (const t of shuffled) {
+    for (const node of makeTrial(t, false)) timeline.push(node);
+  }
+
+  /* End screen */
+  timeline.push({
+    type: 'html-keyboard-response',
+    stimulus() {
+      const n   = shuffled.length;
+      const pct = (100 * correctMain / Math.max(n, 1)).toFixed(1);
+      return `
+        <div class="exp-wrap">
+          <h2 style="font-size:2rem; font-weight:700;">Thank you!</h2>
+          <p class="exp-sub" style="margin-top:1.2rem;">
+            You correctly identified
+            <span class="exp-hl">${correctMain} / ${n}</span> images
+            &nbsp;(<span class="exp-hl">${pct} %</span>).
+          </p>
+          <p class="exp-sub" style="margin-top:0.8rem;">
+            Your results are being saved.
+            ${SHEETS_ENDPOINT
+              ? 'Data has been sent to the researcher automatically.'
+              : 'A CSV file will download to your device — please send it to the researcher.'}
+          </p>
+          <p class="exp-hint">Press any key to finish</p>
+        </div>`;
+    },
+    choices: jsPsych.ALL_KEYS,
+  });
+
+  /* ── Init ──────────────────────────────────────────────────────────── */
+  jsPsych.init({
+    timeline,
+    preload_images: [...MAIN_TRIALS, ...PRACTICE_TRIALS].map(t => t.web_path),
+    show_progress_bar: true,
+    message_progress_bar: 'Progress',
+    async on_finish() {
+      const responseRows = jsPsych.data.get().filter({ phase: 'response' }).values();
+
+      /* 1. Local CSV download (always) */
+      const csv = jsPsych.data.get().filter({ phase: 'response' }).csv();
+      downloadCSV(csv, `noisy_recognition_${participantId}_${Date.now()}.csv`);
+
+      /* 2. Google Sheets submission (if configured) */
+      const rows = responseRows.map(d => ({
+        image_id:      d.image_id,
+        corruption:    d.corruption,
+        severity:      d.severity,
+        correct_class: d.correct_class,
+        chosen_class:  d.chosen_class,
+        is_correct:    d.is_correct,
+        rt:            Math.round(d.rt),
+      }));
+      await submitToSheets(participantId, rows);
+    },
+  });
 }
-
-/* Practice block */
-timeline.push({
-  type: 'html-keyboard-response',
-  stimulus: `<div style="color:#94a3b8; font-size:1.25rem; padding-top:35vh; text-align:center;">
-    Practice — 3 trials with correctness feedback
-  </div>`,
-  choices: jsPsych.NO_KEYS,
-  trial_duration: 1800,
-});
-for (const t of PRACTICE_TRIALS) {
-  for (const node of makeTrial(t, true)) timeline.push(node);
-}
-
-/* Transition */
-timeline.push({
-  type: 'html-keyboard-response',
-  stimulus: `
-    <div class="exp-wrap">
-      <h2 style="font-size:1.6rem; font-weight:600;">Main experiment</h2>
-      <p class="exp-sub" style="margin-top:1rem;">
-        The next <span class="exp-hl">${MAIN_TRIALS.length} trials</span> will
-        have no feedback. Try your best even when the image is hard to see.
-      </p>
-      <p class="exp-hint">Press any key to start</p>
-    </div>`,
-  choices: jsPsych.ALL_KEYS,
-});
-
-/* Main block (shuffled) */
-const shuffled = shuffle(MAIN_TRIALS);
-for (const t of shuffled) {
-  for (const node of makeTrial(t, false)) timeline.push(node);
-}
-
-/* End screen */
-timeline.push({
-  type: 'html-keyboard-response',
-  stimulus() {
-    const n   = shuffled.length;
-    const pct = (100 * correctMain / Math.max(n, 1)).toFixed(1);
-    return `
-      <div class="exp-wrap">
-        <h2 style="font-size:2rem; font-weight:700;">Thank you!</h2>
-        <p class="exp-sub" style="margin-top:1.2rem;">
-          You correctly identified
-          <span class="exp-hl">${correctMain} / ${n}</span> images
-          &nbsp;(<span class="exp-hl">${pct} %</span>).
-        </p>
-        <p class="exp-sub" style="margin-top:0.8rem;">
-          Your results will download automatically as a CSV file.
-        </p>
-        <p class="exp-hint">Press any key to close</p>
-      </div>`;
-  },
-  choices: jsPsych.ALL_KEYS,
-});
-
-/* ── Init ────────────────────────────────────────────────────────────────── */
-jsPsych.init({
-  timeline,
-  preload_images: [...MAIN_TRIALS, ...PRACTICE_TRIALS].map(t => t.web_path),
-  show_progress_bar: true,
-  message_progress_bar: 'Progress',
-  on_finish() {
-    const data = jsPsych.data.get().filter({ phase: 'response' }).csv();
-    const pid  = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    downloadCSV(data, `noisy_recognition_${pid}.csv`);
-  },
-});
 </script>
 </body>
 </html>
