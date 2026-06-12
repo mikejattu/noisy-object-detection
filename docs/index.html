@@ -84,15 +84,12 @@
 </head>
 <body>
 
-<!-- ── Participant-ID gate (shown before jsPsych starts) ────────────────── -->
+<!-- ── Name gate (shown before jsPsych starts) ──────────────────────────── -->
 <div id="pid-screen">
   <div id="pid-card">
     <h2>Image Recognition Study</h2>
-    <p>
-      Enter the participant ID you were given by the researcher.<br>
-      If you were not given one, type <strong style="color:#e2e8f0;">anonymous</strong>.
-    </p>
-    <input id="pid-input" type="text" placeholder="e.g., P001" maxlength="40"
+    <p>Enter your name to begin. A unique session ID will be assigned automatically.</p>
+    <input id="pid-input" type="text" placeholder="Your name" maxlength="80"
            onkeydown="if(event.key==='Enter') startExperiment()">
     <div id="pid-error"></div>
     <button id="pid-btn" onclick="startExperiment()">Begin Experiment</button>
@@ -146,7 +143,7 @@ async function submitToSheets(participantId, rows) {
       method:  'POST',
       mode:    'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ participant_id: participantId, rows }),
+      body:    JSON.stringify({ participant_name: participantName, participant_id: participantId, rows }),
     });
     console.log('Data submitted to Google Sheets.');
   } catch (err) {
@@ -154,24 +151,31 @@ async function submitToSheets(participantId, rows) {
   }
 }
 
-/* ── Participant-ID gate ───────────────────────────────────────────────── */
-let participantId = '';
+/* ── Name gate ─────────────────────────────────────────────────────────── */
+let participantName = '';
+let participantId   = '';
+
+function generateId() {
+  // e.g. "M4CXA7" — timestamp base-36 + 3 random chars, uppercase
+  return (Date.now().toString(36) + Math.random().toString(36).slice(2, 5)).toUpperCase();
+}
 
 function startExperiment() {
   const val = document.getElementById('pid-input').value.trim();
   if (!val) {
-    document.getElementById('pid-error').textContent = 'Please enter a participant ID.';
+    document.getElementById('pid-error').textContent = 'Please enter your name.';
     return;
   }
-  participantId = val;
+  participantName = val;
+  participantId   = generateId();
   document.getElementById('pid-screen').style.display = 'none';
   runJsPsych();
 }
 
 /* ── Main experiment ───────────────────────────────────────────────────── */
 function runJsPsych() {
-  /* Tag every trial with the participant ID */
-  jsPsych.data.addProperties({ participant_id: participantId });
+  /* Tag every trial with name + auto-generated ID */
+  jsPsych.data.addProperties({ participant_name: participantName, participant_id: participantId });
 
   let correctMain = 0;
   let lastCorrect = false;
@@ -381,7 +385,7 @@ function runJsPsych() {
 
       /* 1. Local CSV download (always) */
       const csv = jsPsych.data.get().filter({ phase: 'response' }).csv();
-      downloadCSV(csv, `noisy_recognition_${participantId}_${Date.now()}.csv`);
+      downloadCSV(csv, `noisy_recognition_${participantName}_${participantId}.csv`);
 
       /* 2. Google Sheets submission (if configured) */
       const rows = responseRows.map(d => ({
