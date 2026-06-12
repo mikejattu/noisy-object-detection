@@ -80,17 +80,16 @@ def main() -> None:
         if candidates:
             main_ids.append(sorted(candidates)[0])
 
-    # 3 extra images from 3 different classes (from remaining pool)
+    # Extra images from remaining pool to reach N_WEB_IMAGES total
+    N_WEB_IMAGES = 40
     remaining_df = clean_df[~clean_df["image_id"].isin(main_ids)]
-    extra_ids, used_wnids = [], set()
-    for row in remaining_df.sample(frac=1, random_state=args.seed).itertuples():
-        if row.wnid not in used_wnids:
-            extra_ids.append(row.image_id)
-            used_wnids.add(row.wnid)
-        if len(extra_ids) == 3:
-            break
+    extra_ids = (
+        remaining_df
+        .sample(frac=1, random_state=args.seed)["image_id"]
+        .tolist()[:N_WEB_IMAGES - len(main_ids)]
+    )
 
-    # All 13 images get all 9 conditions (clean + 8 corruptions)
+    # All selected images get all 9 conditions (clean + 8 corruptions)
     all_ids = main_ids + extra_ids
     corruptions = sorted(c for c in manifest["corruption"].unique() if c != "clean")
     trials = []

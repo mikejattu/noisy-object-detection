@@ -192,7 +192,7 @@ function runJsPsych() {
           and must click the one that matches the image.
         </p>
         <p class="exp-sub" style="margin-top:1.5rem;">
-          There are <span class="exp-hl">13 trials</span> in total.
+          There are <span class="exp-hl">${new Set(MAIN_TRIALS.map(t=>t.image_id)).size} trials</span> in total.
         </p>
         <p class="exp-hint">Press any key to continue</p>
       </div>`,
