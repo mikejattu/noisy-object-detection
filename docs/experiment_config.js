@@ -719,9 +719,7 @@ const EXPERIMENT_CONFIG = {
       "label": 701,
       "class_name": "parachute",
       "web_path": "images/shot_noise/sev3/n03888257_10980.jpg"
-    }
-  ],
-  "practice_trials": [
+    },
     {
       "image_id": "n02979186_20220",
       "corruption": "clean",
@@ -729,6 +727,70 @@ const EXPERIMENT_CONFIG = {
       "label": 482,
       "class_name": "cassette player",
       "web_path": "images/clean/n02979186_20220.jpg"
+    },
+    {
+      "image_id": "n02979186_20220",
+      "corruption": "contrast",
+      "severity": 3,
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/contrast/sev3/n02979186_20220.jpg"
+    },
+    {
+      "image_id": "n02979186_20220",
+      "corruption": "defocus_blur",
+      "severity": 3,
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/defocus_blur/sev3/n02979186_20220.jpg"
+    },
+    {
+      "image_id": "n02979186_20220",
+      "corruption": "fog",
+      "severity": 3,
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/fog/sev3/n02979186_20220.jpg"
+    },
+    {
+      "image_id": "n02979186_20220",
+      "corruption": "gaussian_noise",
+      "severity": 3,
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/gaussian_noise/sev3/n02979186_20220.jpg"
+    },
+    {
+      "image_id": "n02979186_20220",
+      "corruption": "jpeg_compression",
+      "severity": 3,
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/jpeg_compression/sev3/n02979186_20220.jpg"
+    },
+    {
+      "image_id": "n02979186_20220",
+      "corruption": "motion_blur",
+      "severity": 3,
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/motion_blur/sev3/n02979186_20220.jpg"
+    },
+    {
+      "image_id": "n02979186_20220",
+      "corruption": "pixelate",
+      "severity": 3,
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/pixelate/sev3/n02979186_20220.jpg"
+    },
+    {
+      "image_id": "n02979186_20220",
+      "corruption": "shot_noise",
+      "severity": 3,
+      "label": 482,
+      "class_name": "cassette player",
+      "web_path": "images/shot_noise/sev3/n02979186_20220.jpg"
     },
     {
       "image_id": "n01440764_14530",
@@ -739,14 +801,143 @@ const EXPERIMENT_CONFIG = {
       "web_path": "images/clean/n01440764_14530.jpg"
     },
     {
+      "image_id": "n01440764_14530",
+      "corruption": "contrast",
+      "severity": 3,
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/contrast/sev3/n01440764_14530.jpg"
+    },
+    {
+      "image_id": "n01440764_14530",
+      "corruption": "defocus_blur",
+      "severity": 3,
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/defocus_blur/sev3/n01440764_14530.jpg"
+    },
+    {
+      "image_id": "n01440764_14530",
+      "corruption": "fog",
+      "severity": 3,
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/fog/sev3/n01440764_14530.jpg"
+    },
+    {
+      "image_id": "n01440764_14530",
+      "corruption": "gaussian_noise",
+      "severity": 3,
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/gaussian_noise/sev3/n01440764_14530.jpg"
+    },
+    {
+      "image_id": "n01440764_14530",
+      "corruption": "jpeg_compression",
+      "severity": 3,
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/jpeg_compression/sev3/n01440764_14530.jpg"
+    },
+    {
+      "image_id": "n01440764_14530",
+      "corruption": "motion_blur",
+      "severity": 3,
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/motion_blur/sev3/n01440764_14530.jpg"
+    },
+    {
+      "image_id": "n01440764_14530",
+      "corruption": "pixelate",
+      "severity": 3,
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/pixelate/sev3/n01440764_14530.jpg"
+    },
+    {
+      "image_id": "n01440764_14530",
+      "corruption": "shot_noise",
+      "severity": 3,
+      "label": 0,
+      "class_name": "tench",
+      "web_path": "images/shot_noise/sev3/n01440764_14530.jpg"
+    },
+    {
       "image_id": "n03394916_47110",
       "corruption": "clean",
       "severity": 0,
       "label": 566,
       "class_name": "French horn",
       "web_path": "images/clean/n03394916_47110.jpg"
+    },
+    {
+      "image_id": "n03394916_47110",
+      "corruption": "contrast",
+      "severity": 3,
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/contrast/sev3/n03394916_47110.jpg"
+    },
+    {
+      "image_id": "n03394916_47110",
+      "corruption": "defocus_blur",
+      "severity": 3,
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/defocus_blur/sev3/n03394916_47110.jpg"
+    },
+    {
+      "image_id": "n03394916_47110",
+      "corruption": "fog",
+      "severity": 3,
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/fog/sev3/n03394916_47110.jpg"
+    },
+    {
+      "image_id": "n03394916_47110",
+      "corruption": "gaussian_noise",
+      "severity": 3,
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/gaussian_noise/sev3/n03394916_47110.jpg"
+    },
+    {
+      "image_id": "n03394916_47110",
+      "corruption": "jpeg_compression",
+      "severity": 3,
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/jpeg_compression/sev3/n03394916_47110.jpg"
+    },
+    {
+      "image_id": "n03394916_47110",
+      "corruption": "motion_blur",
+      "severity": 3,
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/motion_blur/sev3/n03394916_47110.jpg"
+    },
+    {
+      "image_id": "n03394916_47110",
+      "corruption": "pixelate",
+      "severity": 3,
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/pixelate/sev3/n03394916_47110.jpg"
+    },
+    {
+      "image_id": "n03394916_47110",
+      "corruption": "shot_noise",
+      "severity": 3,
+      "label": 566,
+      "class_name": "French horn",
+      "web_path": "images/shot_noise/sev3/n03394916_47110.jpg"
     }
   ],
+  "practice_trials": [],
   "class_names": [
     "tench",
     "English springer",

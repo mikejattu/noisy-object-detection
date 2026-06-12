@@ -80,20 +80,20 @@ def main() -> None:
         if candidates:
             main_ids.append(sorted(candidates)[0])
 
-    # 3 practice images from the remainder — pick from 3 different classes
+    # 3 extra images from 3 different classes (from remaining pool)
     remaining_df = clean_df[~clean_df["image_id"].isin(main_ids)]
-    practice_ids = []
-    used_wnids = set()
-    candidates = remaining_df.sample(frac=1, random_state=args.seed).itertuples()
-    for row in candidates:
+    extra_ids, used_wnids = [], set()
+    for row in remaining_df.sample(frac=1, random_state=args.seed).itertuples():
         if row.wnid not in used_wnids:
-            practice_ids.append(row.image_id)
+            extra_ids.append(row.image_id)
             used_wnids.add(row.wnid)
-        if len(practice_ids) == 3:
+        if len(extra_ids) == 3:
             break
 
+    # All 13 images get all 9 conditions (clean + 8 corruptions)
+    all_ids = main_ids + extra_ids
     corruptions = sorted(c for c in manifest["corruption"].unique() if c != "clean")
-    main_trials, practice_trials = [], []
+    trials = []
 
     def build_record(iid, corruption, severity, web_path, label, class_name):
         return {
@@ -105,7 +105,7 @@ def main() -> None:
             "web_path": web_path,
         }
 
-    for iid in main_ids + practice_ids:
+    for iid in all_ids:
         row = clean_df[clean_df["image_id"] == iid].iloc[0]
         label = int(row["label"])
         class_name = WNID_TO_CLASS[row["wnid"]]
@@ -114,12 +114,9 @@ def main() -> None:
         src = out / row["path"]
         web_path = f"images/clean/{iid}.jpg"
         resize_and_save(src, img_dir / "clean" / f"{iid}.jpg")
-        rec = build_record(iid, "clean", 0, web_path, label, class_name)
-        (practice_trials if iid in practice_ids else main_trials).append(rec)
+        trials.append(build_record(iid, "clean", 0, web_path, label, class_name))
 
-        # Corrupted (main images only)
-        if iid not in main_ids:
-            continue
+        # All 8 corruptions
         for corruption in corruptions:
             rows = manifest[
                 (manifest["image_id"] == iid)
@@ -135,11 +132,11 @@ def main() -> None:
             web_path = f"images/{corruption}/sev{MAIN_SEVERITY}/{iid}.jpg"
             dst = img_dir / corruption / f"sev{MAIN_SEVERITY}" / f"{iid}.jpg"
             resize_and_save(src, dst)
-            main_trials.append(build_record(iid, corruption, MAIN_SEVERITY, web_path, label, class_name))
+            trials.append(build_record(iid, corruption, MAIN_SEVERITY, web_path, label, class_name))
 
     config = {
-        "trials": main_trials,
-        "practice_trials": practice_trials,
+        "trials": trials,
+        "practice_trials": [],
         "class_names": [WNID_TO_CLASS[w] for w in sorted(WNID_TO_CLASS)],
         "corruption_display": CORRUPTION_DISPLAY,
     }
@@ -147,11 +144,10 @@ def main() -> None:
         f"const EXPERIMENT_CONFIG = {json.dumps(config, indent=2)};\n"
     )
 
-    total_images = len(main_trials) + len(practice_trials)
     print(f"Done.")
-    print(f"  Main trials  : {len(main_trials):4d}  (10 images × {len(corruptions)+1} conditions)")
-    print(f"  Practice     : {len(practice_trials):4d}")
-    print(f"  JPEG files   : {total_images}")
+    print(f"  Images       : {len(all_ids):4d}  ({len(main_ids)} core + {len(extra_ids)} extra)")
+    print(f"  Trials       : {len(trials):4d}  ({len(all_ids)} images × {len(corruptions)+1} conditions)")
+    print(f"  JPEG files   : {len(trials)}")
     print(f"  Config       : {docs / 'experiment_config.js'}")
 
 

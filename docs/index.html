@@ -176,7 +176,6 @@ function runJsPsych() {
   /* Tag every trial with name + auto-generated ID */
   jsPsych.data.addProperties({ participant_name: participantName, participant_id: participantId });
 
-  let correctMain = 0;
   let lastCorrect = false;
   const timeline = [];
 
@@ -193,8 +192,7 @@ function runJsPsych() {
           and must click the one that matches the image.
         </p>
         <p class="exp-sub" style="margin-top:1.5rem;">
-          There are <span class="exp-hl">10 main trials</span>
-          (plus 3 practice trials with feedback).
+          There are <span class="exp-hl">13 trials</span> in total.
         </p>
         <p class="exp-hint">Press any key to continue</p>
       </div>`,
@@ -222,13 +220,13 @@ function runJsPsych() {
         <p class="exp-sub">② An image appears briefly. Look at it carefully.</p>
         <p class="exp-sub">③ Two category labels appear. Click the one that matches the image.</p>
         <p class="exp-sub">④ Try to be both <strong style="color:#f1f5f9;">accurate</strong> and <strong style="color:#f1f5f9;">quick</strong>.</p>
-        <p class="exp-hint" style="text-align:center; margin-top:2.5rem;">Press any key to begin practice</p>
+        <p class="exp-hint" style="text-align:center; margin-top:2.5rem;">Press any key to begin</p>
       </div>`,
     choices: jsPsych.ALL_KEYS,
   });
 
   /* ── Trial builder ─────────────────────────────────────────────────── */
-  function makeTrial(trial, practice) {
+  function makeTrial(trial) {
     const nodes = [];
 
     // Pick 1 random distractor from the other 9 classes
@@ -284,26 +282,8 @@ function runJsPsych() {
         data.chosen_class = twoChoices[data.response];
         data.is_correct   = (data.chosen_class === trial.class_name) ? 1 : 0;
         data.rt_ms        = Math.round(data.rt);
-        lastCorrect = !!data.is_correct;
-        if (!practice) correctMain += data.is_correct;
       },
     });
-
-    // Feedback (practice only, 900 ms)
-    if (practice) {
-      nodes.push({
-        type: 'html-keyboard-response',
-        stimulus() {
-          return lastCorrect
-            ? `<p style="font-size:1.5rem; color:#22c55e;">✓ Correct!</p>`
-            : `<p style="font-size:1.5rem; color:#ef4444;">
-                 ✗ Incorrect — it was <em>${trial.class_name}</em>
-               </p>`;
-        },
-        choices: jsPsych.NO_KEYS,
-        trial_duration: 900,
-      });
-    }
 
     // ITI (400 ms)
     nodes.push({
@@ -314,20 +294,7 @@ function runJsPsych() {
     return nodes;
   }
 
-  /* Practice block */
-  timeline.push({
-    type: 'html-keyboard-response',
-    stimulus: `<div style="color:#94a3b8; font-size:1.25rem; padding-top:35vh; text-align:center;">
-      Practice — 3 trials with correctness feedback
-    </div>`,
-    choices: jsPsych.NO_KEYS,
-    trial_duration: 1800,
-  });
-  for (const t of PRACTICE_TRIALS) {
-    for (const node of makeTrial(t, true)) timeline.push(node);
-  }
-
-  /* Main block — one condition per unique source image, shuffled */
+  /* One condition per unique source image, shuffled */
   const byImage = {};
   for (const t of MAIN_TRIALS) {
     if (!byImage[t.image_id]) byImage[t.image_id] = [];
@@ -336,57 +303,32 @@ function runJsPsych() {
   const shuffled = shuffle(
     Object.values(byImage).map(group => group[Math.floor(Math.random() * group.length)])
   );
-  const N_UNIQUE = shuffled.length;
-
-  /* Transition to main */
-  timeline.push({
-    type: 'html-keyboard-response',
-    stimulus: `
-      <div class="exp-wrap">
-        <h2 style="font-size:1.6rem; font-weight:600;">Main experiment</h2>
-        <p class="exp-sub" style="margin-top:1rem;">
-          The next <span class="exp-hl">${N_UNIQUE} trials</span>
-          have no feedback. Try your best even when the image is hard to see.
-        </p>
-        <p class="exp-hint">Press any key to start</p>
-      </div>`,
-    choices: jsPsych.ALL_KEYS,
-  });
 
   for (const t of shuffled) {
-    for (const node of makeTrial(t, false)) timeline.push(node);
+    for (const node of makeTrial(t)) timeline.push(node);
   }
 
   /* End screen */
   timeline.push({
     type: 'html-keyboard-response',
-    stimulus() {
-      const n   = shuffled.length;
-      const pct = (100 * correctMain / Math.max(n, 1)).toFixed(1);
-      return `
-        <div class="exp-wrap">
-          <h2 style="font-size:2rem; font-weight:700;">Thank you!</h2>
-          <p class="exp-sub" style="margin-top:1.2rem;">
-            You correctly identified
-            <span class="exp-hl">${correctMain} / ${n}</span> images
-            &nbsp;(<span class="exp-hl">${pct} %</span>).
-          </p>
-          <p class="exp-sub" style="margin-top:0.8rem;">
-            Your results are being saved.
-            ${SHEETS_ENDPOINT
-              ? 'Data has been sent to the researcher automatically.'
-              : 'A CSV file will download to your device — please send it to the researcher.'}
-          </p>
-          <p class="exp-hint">Press any key to finish</p>
-        </div>`;
-    },
+    stimulus: `
+      <div class="exp-wrap">
+        <h2 style="font-size:2rem; font-weight:700;">Thank you!</h2>
+        <p class="exp-sub" style="margin-top:1.2rem;">
+          Your responses have been recorded.
+          ${SHEETS_ENDPOINT
+            ? 'Data has been sent to the researcher automatically.'
+            : 'A CSV file will download to your device — please send it to the researcher.'}
+        </p>
+        <p class="exp-hint">Press any key to finish</p>
+      </div>`,
     choices: jsPsych.ALL_KEYS,
   });
 
   /* ── Init ──────────────────────────────────────────────────────────── */
   jsPsych.init({
     timeline,
-    preload_images: [...MAIN_TRIALS, ...PRACTICE_TRIALS].map(t => t.web_path),
+    preload_images: MAIN_TRIALS.map(t => t.web_path),
     show_progress_bar: true,
     message_progress_bar: 'Progress',
     async on_finish() {
