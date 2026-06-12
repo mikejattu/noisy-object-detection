@@ -17,6 +17,7 @@ from pathlib import Path
 import torch
 
 from ..models import registry
+from .guard import evaluate_clean, resolve_clean_selector
 from .loader import NoisyImageSet, load_manifest
 from .loop import EvalConfig, evaluate
 
@@ -89,11 +90,45 @@ def run(cfg: dict) -> None:
     done = _done_keys(table_path)
     grid = list(itertools.product(cfg["corruptions"], cfg["severities"], cfg["seeds"]))
 
+    # Clean-set guard config (gates each model before its sweep). Off unless cfg['guard']['enabled'].
+    guard_cfg = cfg.get("guard", {}) or {}
+    guard_enabled = bool(guard_cfg.get("enabled", False))
+    if guard_enabled:
+        clean_selector, clean_manifest_path = resolve_clean_selector(cfg)
+        clean_manifest = (
+            manifest
+            if str(clean_manifest_path) == str(manifest_path)
+            else load_manifest(Path(clean_manifest_path))
+        )
+
     for model_key in cfg["models"]:
         spec = registry.get(model_key)
         classifier = spec.load(device)  # load ONCE per model
-        # (optional) clean-set guard: measure top-1 vs spec.meta.expected_top1 before corruptions.
         try:
+            if guard_enabled:
+                gr = evaluate_clean(
+                    classifier,
+                    spec,
+                    manifest=clean_manifest,
+                    data_root=cfg["data_root"],
+                    clean=clean_selector,
+                    config=eval_cfg,
+                    device=device,
+                    n=guard_cfg.get("n", 1000),
+                    subsample_seed=guard_cfg.get("subsample_seed", 0),
+                    tolerance_pct=guard_cfg.get("tolerance_pct", 5.0),
+                )
+                print(
+                    f"[guard] {gr.model_key}: clean top-1 {gr.measured_top1:.2f} "
+                    f"(expected {gr.expected_top1}, floor {gr.floor}) -> "
+                    f"{'OK' if gr.passed else 'FAIL'}" + (f"  {gr.note}" if gr.note else "")
+                )
+                if not gr.passed:
+                    # Fail fast: a mis-wired model (wrong norm/label order) never reaches the sweep.
+                    raise RuntimeError(
+                        f"clean-set guard failed for {gr.model_key}: "
+                        f"{gr.measured_top1:.2f} < floor {gr.floor:.2f} — aborting before the sweep"
+                    )
             for corruption, severity, seed in grid:
                 if (model_key, corruption, severity, seed) in done:
                     continue  # never recompute a row just to redraw

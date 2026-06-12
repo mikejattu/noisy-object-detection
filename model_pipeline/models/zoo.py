@@ -1,42 +1,30 @@
 """The six candidate models (see README 'Models' table).
 
-Study-design metadata is filled now. The load()/preprocess() recipes — exact
-checkpoint names, per-model normalisation constants, and CLIP's zero-shot head —
-are filled by the verification pass; until then load()/preprocess() raise, so a
-half-wired model can never silently produce numbers.
+load/preprocess come from loaders.py, wired from source-verified recipes; the
+metadata below records the verified constants (exact checkpoint, normalization,
+clean-set expected top-1) so the study design and the runtime guards are explicit.
 
-Sources mirror the README contract exactly:
-  ResNet-50            -> timm
-  ResNet-50 (SIN)      -> Geirhos texture-vs-shape
-  ViT-B/16             -> timm
-  ConvNeXt-B           -> timm
-  CLIP ViT-B/16        -> OpenCLIP
-  ResNet-50 AugMix     -> RobustBench
+Verified facts per model live in the `source`/`normalization`/`expected_top1`
+fields and in loaders.py docstrings; sources were checked against the official
+model cards / library source. Runtime residual risks (network egress, version
+pins, the clean-set sanity guard) are summarised in module docstrings and the
+project README — the real test is measuring clean top-1 on the GPU box.
 """
 from __future__ import annotations
 
+from . import loaders
 from .registry import register
 from .spec import ModelMeta, ModelSpec
-
-
-def _pending(key: str, what: str):
-    def _raise(*_args, **_kwargs):
-        raise NotImplementedError(
-            f"{key}: {what} recipe pending verification pass (timm/openclip/robustbench)"
-        )
-
-    return _raise
-
 
 _SPECS = [
     ModelSpec(
         key="resnet50_in1k",
-        load=_pending("resnet50_in1k", "load"),
-        preprocess=_pending("resnet50_in1k", "preprocess"),
+        load=loaders.load_resnet50_in1k,
+        preprocess=loaders.preprocess_resnet50_in1k,
         meta=ModelMeta(
             family="resnet50",
             objective="supervised-1k",
-            source="timm:resnet50  # VERIFY weights variant (e.g. .a1_in1k vs .tv_in1k)",
+            source="timm:resnet50.tv_in1k",  # torchvision IMAGENET1K_V1 weights
             input_size=224,
             normalization="imagenet",
             axis="shape-texture",
@@ -44,16 +32,17 @@ _SPECS = [
             role="reference + texture-biased pole",
             params_m=25.6,
             removable="lose the texture pole and the standard-training reference point",
+            expected_top1=76.13,
         ),
     ),
     ModelSpec(
         key="resnet50_sin",
-        load=_pending("resnet50_sin", "load"),
-        preprocess=_pending("resnet50_sin", "preprocess"),
+        load=loaders.load_resnet50_sin,
+        preprocess=loaders.preprocess_resnet50_sin,
         meta=ModelMeta(
             family="resnet50",
             objective="stylized-1k",
-            source="geirhos/texture-vs-shape:resnet50_trained_on_SIN  # VERIFY (SIN vs SIN+IN)",
+            source="geirhos/texture-vs-shape:resnet50_trained_on_SIN (bitbucket)",  # pure SIN, not SIN+IN
             input_size=224,
             normalization="imagenet",
             axis="shape-texture",
@@ -61,35 +50,35 @@ _SPECS = [
             role="shape-biased pole, architecture-matched to reference",
             params_m=25.6,
             removable="lose the shape pole; the primary axis collapses to a single point",
+            expected_top1=60.18,
         ),
     ),
     ModelSpec(
         key="vit_b16_in1k",
-        load=_pending("vit_b16_in1k", "load"),
-        preprocess=_pending("vit_b16_in1k", "preprocess"),
+        load=loaders.load_vit_b16_in1k,
+        preprocess=loaders.preprocess_vit_b16_in1k,
         meta=ModelMeta(
             family="vit_b16",
             objective="supervised-1k",
-            # VERIFY: in1k vs in21k-finetuned, AND normalisation — many timm ViTs use 0.5/0.5 (inception),
-            # not ImageNet mean/std. Getting this wrong is exactly the silent-mismatch failure mode.
-            source="timm:vit_base_patch16_224  # VERIFY variant + norm",
+            source="timm:vit_base_patch16_224.augreg2_in21k_ft_in1k",  # in21k-pretrained, in1k-finetuned
             input_size=224,
-            normalization="inception",
+            normalization="inception",  # 0.5/0.5 — NOT ImageNet; verified vs HF config.json
             axis="spatial-integration",
             pole="control",
             role="attention vs. convolution (spatial integration)",
             params_m=86.6,
             removable="lose the attention-vs-conv contrast",
+            expected_top1=85.108,
         ),
     ),
     ModelSpec(
         key="convnext_b_in1k",
-        load=_pending("convnext_b_in1k", "load"),
-        preprocess=_pending("convnext_b_in1k", "preprocess"),
+        load=loaders.load_convnext_b_in1k,
+        preprocess=loaders.preprocess_convnext_b_in1k,
         meta=ModelMeta(
             family="convnext_b",
             objective="supervised-1k",
-            source="timm:convnext_base  # VERIFY weights variant + norm",
+            source="timm:convnext_base.fb_in1k",  # pure in1k (NOT in22k-ft)
             input_size=224,
             normalization="imagenet",
             axis="conv-op-vs-recipe",
@@ -97,42 +86,43 @@ _SPECS = [
             role="separates conv operation from modern training recipe",
             params_m=88.6,
             removable="lose the ability to attribute ViT effects to op vs. recipe",
+            expected_top1=83.82,
         ),
     ),
     ModelSpec(
         key="clip_vit_b16",
-        load=_pending("clip_vit_b16", "load (incl. zero-shot head)"),
-        preprocess=_pending("clip_vit_b16", "preprocess"),
+        load=loaders.load_clip_vit_b16,
+        preprocess=loaders.preprocess_clip_vit_b16,
         meta=ModelMeta(
             family="clip_vit_b16",
             objective="clip-contrastive",
-            # Zero-shot head (imagenet1k class prompts + templates) built inside load();
-            # frozen in the spec for reproducibility. CLIP normalisation, NOT ImageNet.
-            source="open_clip:ViT-B-16 (pretrained=openai)  # VERIFY pretrained tag",
+            source="open_clip:ViT-B-16 (pretrained=openai)",
             input_size=224,
-            normalization="clip",
+            normalization="clip",  # OpenAI CLIP mean/std
             axis="training-objective",
             pole="control",
             role="language-aligned objective (zero-shot head built at load)",
             params_m=86.2,
             removable="lose the training-objective contrast",
+            expected_top1=68.3,  # zero-shot
         ),
     ),
     ModelSpec(
         key="resnet50_augmix",
-        load=_pending("resnet50_augmix", "load"),
-        preprocess=_pending("resnet50_augmix", "preprocess"),
+        load=loaders.load_resnet50_augmix,
+        preprocess=loaders.preprocess_resnet50_augmix,
         meta=ModelMeta(
             family="resnet50",
-            objective="augmix-deepaug",
-            source="robustbench:Hendrycks2020AugMix_ResNet50  # VERIFY (AugMix vs DeepAug+AugMix)",
+            objective="augmix",  # AugMix only; DeepAug+AugMix is the separate Hendrycks2020Many key
+            source="robustbench:Hendrycks2020AugMix (imagenet/corruptions)",
             input_size=224,
-            normalization="imagenet",
+            normalization="imagenet (baked into model)",  # preprocess must NOT normalize
             axis="explicit-robustness",
             pole="control",
             role="explicit-robustness control",
             params_m=25.6,
             removable="lose the explicit-robustness reference point",
+            expected_top1=77.34,
         ),
     ),
 ]

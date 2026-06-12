@@ -31,3 +31,18 @@ eval:
   metrics: [top1, top5, nll, ece]
   dtype: fp32
   ece_bins: 15
+
+# Clean-set sanity guard: before each model's sweep, measure clean top-1 and abort if it
+# falls below expected_top1 - tolerance_pct. Catches gross wiring errors (wrong normalization,
+# label order) before any GPU hours go into corruptions. Run standalone:
+#   python -m model_pipeline.eval.guard model_pipeline/configs/example.yaml
+guard:
+  enabled: true
+  n: 1000                # deterministic image subsample per model
+  tolerance_pct: 5.0     # floor = expected_top1 - tolerance (sized to catch >=5pt errors, not 0.5%)
+  subsample_seed: 0
+  clean:                 # which manifest slice is "uncorrupted" — MATCH the corruption owner's convention
+    corruption: clean
+    severity: 0
+    # draw: 0            # defaults to the first configured seed
+    # manifest: /data/clean/manifest.parquet   # override if clean images live outside the corruption manifest
