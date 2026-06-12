@@ -125,14 +125,6 @@ function shuffle(arr) {
   return a;
 }
 
-function downloadCSV(csv, fname) {
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = fname; a.click();
-  URL.revokeObjectURL(url);
-}
-
 async function submitToSheets(participantId, rows) {
   if (!SHEETS_ENDPOINT) return;
   try {
@@ -315,10 +307,7 @@ function runJsPsych() {
       <div class="exp-wrap">
         <h2 style="font-size:2rem; font-weight:700;">Thank you!</h2>
         <p class="exp-sub" style="margin-top:1.2rem;">
-          Your responses have been recorded.
-          ${SHEETS_ENDPOINT
-            ? 'Data has been sent to the researcher automatically.'
-            : 'A CSV file will download to your device — please send it to the researcher.'}
+          Your responses have been recorded. Thank you for participating!
         </p>
         <p class="exp-hint">Press any key to finish</p>
       </div>`,
@@ -334,11 +323,7 @@ function runJsPsych() {
     async on_finish() {
       const responseRows = jsPsych.data.get().filter({ phase: 'response' }).values();
 
-      /* 1. Local CSV download (always) */
-      const csv = jsPsych.data.get().filter({ phase: 'response' }).csv();
-      downloadCSV(csv, `noisy_recognition_${participantName}_${participantId}.csv`);
-
-      /* 2. Google Sheets submission (if configured) */
+      /* Google Sheets submission */
       const rows = responseRows.map(d => ({
         participant_name:  participantName,
         image_id:          d.image_id,
