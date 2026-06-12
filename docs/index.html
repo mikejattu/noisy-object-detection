@@ -327,8 +327,16 @@ function runJsPsych() {
     for (const node of makeTrial(t, true)) timeline.push(node);
   }
 
-  /* Count of unique images drives trial count (computed after selection) */
-  const N_UNIQUE = Object.keys(byImage).length;
+  /* Main block — one condition per unique source image, shuffled */
+  const byImage = {};
+  for (const t of MAIN_TRIALS) {
+    if (!byImage[t.image_id]) byImage[t.image_id] = [];
+    byImage[t.image_id].push(t);
+  }
+  const shuffled = shuffle(
+    Object.values(byImage).map(group => group[Math.floor(Math.random() * group.length)])
+  );
+  const N_UNIQUE = shuffled.length;
 
   /* Transition to main */
   timeline.push({
@@ -345,15 +353,6 @@ function runJsPsych() {
     choices: jsPsych.ALL_KEYS,
   });
 
-  /* Main block — one condition per unique source image, shuffled */
-  const byImage = {};
-  for (const t of MAIN_TRIALS) {
-    if (!byImage[t.image_id]) byImage[t.image_id] = [];
-    byImage[t.image_id].push(t);
-  }
-  const shuffled = shuffle(
-    Object.values(byImage).map(group => group[Math.floor(Math.random() * group.length)])
-  );
   for (const t of shuffled) {
     for (const node of makeTrial(t, false)) timeline.push(node);
   }
