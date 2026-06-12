@@ -273,7 +273,7 @@ function runJsPsych() {
         correct_label: trial.label,
       },
       on_finish(data) {
-        data.chosen_class = CLASS_NAMES[data.button_pressed];
+        data.chosen_class = CLASS_NAMES[data.response];
         data.is_correct   = (data.chosen_class === trial.class_name) ? 1 : 0;
         lastCorrect = !!data.is_correct;
         if (!practice) correctMain += data.is_correct;
