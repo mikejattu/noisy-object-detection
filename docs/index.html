@@ -109,7 +109,7 @@
      3. Deploy → New deployment → Web App → Execute as: Me → Who has access: Anyone
      4. Copy the Web App URL and paste it below.
    ═══════════════════════════════════════════════════════════════════════════ */
-const SHEETS_ENDPOINT = '';   // ← paste your Apps Script Web App URL here
+const SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzh2DIX5MvxH5LzfdqFGpIDos0GxyvjdpJQQr_1t-eSs5OqWjEJdiRXEXVls17AO4k4_A/exec';   // ← paste your Apps Script Web App URL here
 
 /* ── Experiment config ─────────────────────────────────────────────────── */
 const CLASS_NAMES     = EXPERIMENT_CONFIG.class_names;
@@ -284,6 +284,7 @@ function runJsPsych() {
       on_finish(data) {
         data.chosen_class = twoChoices[data.response];
         data.is_correct   = (data.chosen_class === trial.class_name) ? 1 : 0;
+        data.rt_ms        = Math.round(data.rt);
         lastCorrect = !!data.is_correct;
         if (!practice) correctMain += data.is_correct;
       },
@@ -398,13 +399,15 @@ function runJsPsych() {
 
       /* 2. Google Sheets submission (if configured) */
       const rows = responseRows.map(d => ({
-        image_id:      d.image_id,
-        corruption:    d.corruption,
-        severity:      d.severity,
-        correct_class: d.correct_class,
-        chosen_class:  d.chosen_class,
-        is_correct:    d.is_correct,
-        rt:            Math.round(d.rt),
+        participant_name:  participantName,
+        image_id:          d.image_id,
+        corruption:        d.corruption,
+        severity:          d.severity,
+        correct_class:     d.correct_class,
+        distractor_class:  d.distractor_class,
+        chosen_class:      d.chosen_class,
+        is_correct:        d.is_correct,
+        rt_ms:             d.rt_ms,
       }));
       await submitToSheets(participantId, rows);
     },

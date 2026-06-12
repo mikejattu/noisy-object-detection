@@ -19,8 +19,9 @@ function doPost(e) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
   const HEADER = [
-    'participant_id', 'timestamp', 'image_id', 'corruption',
-    'severity', 'correct_class', 'chosen_class', 'is_correct', 'rt_ms',
+    'participant_id', 'participant_name', 'timestamp',
+    'image_id', 'corruption', 'severity',
+    'correct_class', 'distractor_class', 'chosen_class', 'is_correct', 'rt_ms',
   ];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADER);
@@ -29,9 +30,9 @@ function doPost(e) {
   const ts = new Date().toISOString();
   data.rows.forEach(row => {
     sheet.appendRow([
-      data.participant_id, ts,
+      data.participant_id, data.participant_name, ts,
       row.image_id, row.corruption, row.severity,
-      row.correct_class, row.chosen_class, row.is_correct, row.rt,
+      row.correct_class, row.distractor_class, row.chosen_class, row.is_correct, row.rt_ms,
     ]);
   });
 
@@ -68,12 +69,14 @@ Commit and push — the experiment will now POST each participant's rows to the 
 
 | Column | Description |
 |---|---|
-| `participant_id` | ID entered at the login screen |
+| `participant_id` | Auto-generated session ID (e.g. `M4CXA7`) |
+| `participant_name` | Name entered at the login screen |
 | `timestamp` | ISO-8601 server time when data arrived |
 | `image_id` | Source image filename stem |
 | `corruption` | `clean` or one of the 8 corruption types |
 | `severity` | 0 (clean) or 3 (main experiment) |
 | `correct_class` | Ground-truth Imagenette class name |
+| `distractor_class` | The wrong-class foil shown alongside the correct one |
 | `chosen_class` | Class name the participant clicked |
 | `is_correct` | 1 if correct, 0 if not |
-| `rt_ms` | Response time in milliseconds (from choice screen appearing) |
+| `rt_ms` | Response time in milliseconds (from choice screen appearing to click) |
