@@ -1,0 +1,51 @@
+run_id: freq-corruption-v1
+device: cuda
+data_root: /home/mike/noisy-object-detection/output
+manifest: /home/mike/noisy-object-detection/output/metadata/manifest.parquet
+results_dir: model_pipeline/results
+results_file: results.parquet
+models:
+- resnet50_in1k
+- resnet50_sin
+- vit_b16_in1k
+- convnext_b_in1k
+- clip_vit_b16
+- resnet50_augmix
+corruptions:
+- gaussian_noise
+- shot_noise
+- jpeg_compression
+- pixelate
+- defocus_blur
+- motion_blur
+- fog
+- contrast
+severities:
+- 1
+- 2
+- 3
+- 4
+- 5
+seeds:
+- 0
+- 1
+- 2
+eval:
+  batch_size: 256
+  num_workers: 8
+  metrics:
+  - top1
+  - top5
+  - nll
+  - ece
+  dtype: fp32
+  ece_bins: 15
+guard:
+  enabled: true
+  n: 1000
+  tolerance_pct: 5.0
+  subsample_seed: 0
+  clean:
+    corruption: clean
+    severity: 0
+    draw: 0
