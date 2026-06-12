@@ -1,0 +1,19 @@
+{
+  "image_id": "009925",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 354,
+  "objects": [
+    {
+      "class": "pottedplant",
+      "bbox": [
+        137,
+        4,
+        491,
+        341
+      ],
+      "difficult": 0
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "image_id": "008954",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 375,
+  "objects": [
+    {
+      "class": "chair",
+      "bbox": [
+        1,
+        107,
+        205,
+        375
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "tvmonitor",
+      "bbox": [
+        1,
+        36,
+        100,
+        138
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "tvmonitor",
+      "bbox": [
+        180,
+        17,
+        311,
+        131
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "tvmonitor",
+      "bbox": [
+        302,
+        34,
+        429,
+        173
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "tvmonitor",
+      "bbox": [
+        419,
+        64,
+        500,
+        261
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "tvmonitor",
+      "bbox": [
+        83,
+        31,
+        196,
+        131
+      ],
+      "difficult": 0
+    }
+  ]
+}

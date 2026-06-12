@@ -1,0 +1,19 @@
+{
+  "image_id": "004572",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 375,
+  "objects": [
+    {
+      "class": "aeroplane",
+      "bbox": [
+        235,
+        241,
+        279,
+        296
+      ],
+      "difficult": 0
+    }
+  ]
+}

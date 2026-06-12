@@ -1,0 +1,19 @@
+{
+  "image_id": "001664",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 333,
+  "objects": [
+    {
+      "class": "person",
+      "bbox": [
+        61,
+        1,
+        327,
+        333
+      ],
+      "difficult": 0
+    }
+  ]
+}

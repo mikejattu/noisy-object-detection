@@ -1,0 +1,19 @@
+{
+  "image_id": "003637",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 344,
+  "objects": [
+    {
+      "class": "train",
+      "bbox": [
+        2,
+        152,
+        465,
+        251
+      ],
+      "difficult": 0
+    }
+  ]
+}

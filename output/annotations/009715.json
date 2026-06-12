@@ -1,0 +1,49 @@
+{
+  "image_id": "009715",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 375,
+  "objects": [
+    {
+      "class": "person",
+      "bbox": [
+        33,
+        96,
+        291,
+        375
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "person",
+      "bbox": [
+        189,
+        128,
+        442,
+        375
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "person",
+      "bbox": [
+        290,
+        122,
+        500,
+        358
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "sofa",
+      "bbox": [
+        29,
+        163,
+        460,
+        374
+      ],
+      "difficult": 1
+    }
+  ]
+}

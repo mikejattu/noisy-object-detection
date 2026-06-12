@@ -1,0 +1,19 @@
+{
+  "image_id": "006246",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 375,
+  "objects": [
+    {
+      "class": "car",
+      "bbox": [
+        10,
+        1,
+        500,
+        375
+      ],
+      "difficult": 0
+    }
+  ]
+}

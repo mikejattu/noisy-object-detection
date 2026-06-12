@@ -1,0 +1,19 @@
+{
+  "image_id": "007418",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 332,
+  "height": 500,
+  "objects": [
+    {
+      "class": "dog",
+      "bbox": [
+        1,
+        99,
+        285,
+        500
+      ],
+      "difficult": 0
+    }
+  ]
+}

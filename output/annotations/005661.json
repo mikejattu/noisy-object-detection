@@ -1,0 +1,89 @@
+{
+  "image_id": "005661",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 375,
+  "objects": [
+    {
+      "class": "diningtable",
+      "bbox": [
+        4,
+        206,
+        318,
+        375
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "chair",
+      "bbox": [
+        159,
+        248,
+        270,
+        375
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "chair",
+      "bbox": [
+        12,
+        250,
+        150,
+        375
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "chair",
+      "bbox": [
+        117,
+        185,
+        184,
+        207
+      ],
+      "difficult": 1
+    },
+    {
+      "class": "chair",
+      "bbox": [
+        200,
+        187,
+        266,
+        209
+      ],
+      "difficult": 1
+    },
+    {
+      "class": "chair",
+      "bbox": [
+        277,
+        124,
+        302,
+        162
+      ],
+      "difficult": 1
+    },
+    {
+      "class": "pottedplant",
+      "bbox": [
+        291,
+        132,
+        305,
+        198
+      ],
+      "difficult": 1
+    },
+    {
+      "class": "pottedplant",
+      "bbox": [
+        154,
+        154,
+        196,
+        187
+      ],
+      "difficult": 1
+    }
+  ]
+}

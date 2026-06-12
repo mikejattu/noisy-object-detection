@@ -1,0 +1,19 @@
+{
+  "image_id": "001415",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 333,
+  "objects": [
+    {
+      "class": "bird",
+      "bbox": [
+        361,
+        257,
+        412,
+        310
+      ],
+      "difficult": 0
+    }
+  ]
+}

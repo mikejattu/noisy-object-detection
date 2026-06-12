@@ -1,0 +1,49 @@
+{
+  "image_id": "007589",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 375,
+  "objects": [
+    {
+      "class": "person",
+      "bbox": [
+        351,
+        179,
+        381,
+        263
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "car",
+      "bbox": [
+        122,
+        166,
+        305,
+        292
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "person",
+      "bbox": [
+        206,
+        143,
+        229,
+        167
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "person",
+      "bbox": [
+        263,
+        141,
+        282,
+        165
+      ],
+      "difficult": 1
+    }
+  ]
+}

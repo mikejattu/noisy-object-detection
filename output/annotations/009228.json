@@ -1,0 +1,29 @@
+{
+  "image_id": "009228",
+  "dataset": "voc2007",
+  "split": "test",
+  "width": 500,
+  "height": 354,
+  "objects": [
+    {
+      "class": "bicycle",
+      "bbox": [
+        284,
+        147,
+        374,
+        353
+      ],
+      "difficult": 0
+    },
+    {
+      "class": "person",
+      "bbox": [
+        195,
+        25,
+        366,
+        354
+      ],
+      "difficult": 0
+    }
+  ]
+}
