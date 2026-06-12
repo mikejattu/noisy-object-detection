@@ -194,7 +194,7 @@ function runJsPsych() {
           and must click the one that matches the image.
         </p>
         <p class="exp-sub" style="margin-top:1.5rem;">
-          There are <span class="exp-hl">${MAIN_TRIALS.length} main trials</span>
+          There are <span class="exp-hl">10 main trials</span>
           (plus 3 practice trials with feedback).
         </p>
         <p class="exp-hint">Press any key to continue</p>
@@ -327,6 +327,9 @@ function runJsPsych() {
     for (const node of makeTrial(t, true)) timeline.push(node);
   }
 
+  /* Count of unique images drives trial count (computed after selection) */
+  const N_UNIQUE = Object.keys(byImage).length;
+
   /* Transition to main */
   timeline.push({
     type: 'html-keyboard-response',
@@ -334,7 +337,7 @@ function runJsPsych() {
       <div class="exp-wrap">
         <h2 style="font-size:1.6rem; font-weight:600;">Main experiment</h2>
         <p class="exp-sub" style="margin-top:1rem;">
-          The next <span class="exp-hl">${MAIN_TRIALS.length} trials</span>
+          The next <span class="exp-hl">${N_UNIQUE} trials</span>
           have no feedback. Try your best even when the image is hard to see.
         </p>
         <p class="exp-hint">Press any key to start</p>
@@ -342,8 +345,15 @@ function runJsPsych() {
     choices: jsPsych.ALL_KEYS,
   });
 
-  /* Main block (shuffled) */
-  const shuffled = shuffle(MAIN_TRIALS);
+  /* Main block — one condition per unique source image, shuffled */
+  const byImage = {};
+  for (const t of MAIN_TRIALS) {
+    if (!byImage[t.image_id]) byImage[t.image_id] = [];
+    byImage[t.image_id].push(t);
+  }
+  const shuffled = shuffle(
+    Object.values(byImage).map(group => group[Math.floor(Math.random() * group.length)])
+  );
   for (const t of shuffled) {
     for (const node of makeTrial(t, false)) timeline.push(node);
   }
