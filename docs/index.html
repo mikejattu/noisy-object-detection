@@ -51,17 +51,17 @@
 
     /* Response button grid — 2 rows × 5 columns */
     #jspsych-html-button-response-btngroup {
-      display: grid !important;
-      grid-template-columns: repeat(5, 1fr) !important;
-      gap: 10px !important;
-      max-width: 780px !important;
-      margin: 10px auto 0 !important;
+      display: flex !important;
+      gap: 24px !important;
+      justify-content: center !important;
+      margin: 24px auto 0 !important;
       padding: 0 !important;
     }
     .jspsych-btn {
-      font-size: 14px !important;
+      font-size: 20px !important;
       font-family: system-ui, sans-serif !important;
-      padding: 14px 6px !important;
+      padding: 20px 48px !important;
+      min-width: 220px !important;
       background: #1e3a5f !important;
       color: #e2e8f0 !important;
       border: 2px solid #3b6ea5 !important;
@@ -186,12 +186,8 @@ function runJsPsych() {
         <p class="exp-sub">
           You will see images that may be
           <span class="exp-hl">blurry, noisy, or distorted</span>.
-          Your task: identify the <span class="exp-hl">object category</span>
-          shown in each image.
-        </p>
-        <p class="exp-sub" style="margin-top:1.2rem;">The 10 possible categories are:</p>
-        <p class="exp-sub" style="margin-top:0.4rem;">
-          ${CLASS_NAMES.map(n => `<em>${n}</em>`).join(' &nbsp;·&nbsp; ')}
+          Each time, you will see <span class="exp-hl">2 category labels</span>
+          and must click the one that matches the image.
         </p>
         <p class="exp-sub" style="margin-top:1.5rem;">
           There are <span class="exp-hl">${MAIN_TRIALS.length} main trials</span>
@@ -221,7 +217,7 @@ function runJsPsych() {
         </h2>
         <p class="exp-sub">① A <strong style="color:#f1f5f9;">+</strong> fixation cross appears. Focus on the centre of the screen.</p>
         <p class="exp-sub">② An image appears briefly. Look at it carefully.</p>
-        <p class="exp-sub">③ The image disappears. Click the button that best matches what you saw.</p>
+        <p class="exp-sub">③ Two category labels appear. Click the one that matches the image.</p>
         <p class="exp-sub">④ Try to be both <strong style="color:#f1f5f9;">accurate</strong> and <strong style="color:#f1f5f9;">quick</strong>.</p>
         <p class="exp-hint" style="text-align:center; margin-top:2.5rem;">Press any key to begin practice</p>
       </div>`,
@@ -231,6 +227,14 @@ function runJsPsych() {
   /* ── Trial builder ─────────────────────────────────────────────────── */
   function makeTrial(trial, practice) {
     const nodes = [];
+
+    // Pick 1 random distractor from the other 9 classes
+    const distractors = CLASS_NAMES.filter(c => c !== trial.class_name);
+    const distractor  = distractors[Math.floor(Math.random() * distractors.length)];
+    // Randomly assign correct to left or right
+    const twoChoices  = Math.random() < 0.5
+      ? [trial.class_name, distractor]
+      : [distractor, trial.class_name];
 
     // Fixation (500 ms)
     nodes.push({
@@ -258,22 +262,23 @@ function runJsPsych() {
       trial_duration: 100,
     });
 
-    // 10-AFC response
+    // 2-AFC response
     nodes.push({
       type: 'html-button-response',
       stimulus: '<p style="color:#94a3b8; font-size:0.95rem; margin-bottom:0.5rem;">What did you see?</p>',
-      choices: CLASS_NAMES,
+      choices: twoChoices,
       button_html: '<button class="jspsych-btn">%choice%</button>',
       data: {
-        phase:         'response',
-        image_id:      trial.image_id,
-        corruption:    trial.corruption,
-        severity:      trial.severity,
-        correct_class: trial.class_name,
-        correct_label: trial.label,
+        phase:            'response',
+        image_id:         trial.image_id,
+        corruption:       trial.corruption,
+        severity:         trial.severity,
+        correct_class:    trial.class_name,
+        correct_label:    trial.label,
+        distractor_class: distractor,
       },
       on_finish(data) {
-        data.chosen_class = CLASS_NAMES[data.response];
+        data.chosen_class = twoChoices[data.response];
         data.is_correct   = (data.chosen_class === trial.class_name) ? 1 : 0;
         lastCorrect = !!data.is_correct;
         if (!practice) correctMain += data.is_correct;
