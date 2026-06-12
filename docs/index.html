@@ -141,7 +141,7 @@ async function submitToSheets(participantId, rows) {
     await fetch(SHEETS_ENDPOINT, {
       method:  'POST',
       mode:    'no-cors',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body:    JSON.stringify({ participant_name: participantName, participant_id: participantId, rows }),
     });
     console.log('Data submitted to Google Sheets.');
